@@ -1,0 +1,91 @@
+/* Dashboard container styling */
+.dashboard-container {
+    padding: 20px;
+    background-color: #ECEFF1;
+    /* Soft grey background */
+    min-height: 100vh;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Header style */
+.dashboard-header {
+    color: #263238;
+    /* Deep grey-blue for contrast */
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+/* Card styling */
+.dashboard-card {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
+    padding: 16px;
+}
+
+.dashboard-card:hover {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
+    transform: translateY(-4px);
+}
+
+/* Card content styling */
+.card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.card-title {
+    font-size: 18px;
+    color: #37474F;
+    margin-bottom: 4px;
+}
+
+.card-value {
+    font-size: 22px;
+    font-weight: 500;
+    color: #263238;
+}
+
+/* Pie chart card styling */
+.graph-card {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
+}
+
+.graph-card:hover {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
+}
+
+.graph-header {
+    background-color: #546E7A;
+    color: #FFFFFF;
+    font-size: 20px;
+    padding: 12px 16px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .dashboard-header {
+        font-size: 22px;
+    }
+
+    .card-title {
+        font-size: 16px;
+    }
+
+    .card-value {
+        font-size: 20px;
+    }
+
+    .graph-header {
+        font-size: 18px;
+    }
+}
