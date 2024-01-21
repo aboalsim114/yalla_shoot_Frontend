@@ -12,29 +12,35 @@ import RechercheEquipe from './pages/DashboardUser/RechercheEquipe';
 import DashboardUser from './pages/DashboardUser/DashboardUser';
 import EquipeDetailPage from './pages/DashboardUser/EquipeDetailPage';
 import CreateTeam from './pages/Admin/CreateTeam';
+import Profile from "./pages/Profile/Profile"
+import { AuthProvider } from './context/AuthContext';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route exact path="/" element={<App />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="*" element={<NotFound />} />
 
-      <Router>
+            <Route path="/DashboardUser/:id" element={<DashboardUser />} />
+            <Route path="/RechercheEquipe" element={<RechercheEquipe />} />
+            <Route path="/EquipeDetailPage/:id" element={<EquipeDetailPage />} />
+            <Route path="/CreateTeam/" element={<CreateTeam />} />
+            <Route path="/Profile/:id" element={<Profile />} />
 
-        <Routes>
-          <Route exact path="/" element={<App />} />
-          <Route exact path="/login" element={<Login />} />
-          <Route exact path="/register" element={<Register />} />
-          <Route exact path="*" element={<NotFound />} />
-          <Route exact path="/DashboardUser/:id" element={<DashboardUser />} />
-          <Route exact path="/RechercheEquipe" element={<RechercheEquipe />} />
-          <Route exact path="/EquipeDetailPage/:id" element={<EquipeDetailPage />} />
-          <Route exact path="/CreateTeam/" element={<CreateTeam />} />
-          <Route element={<PrivateRoute />}>
+            <Route element={<PrivateRoute />}>
 
-          </Route>
+            </Route>
 
-        </Routes>
 
-      </Router>
+          </Routes>
+
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

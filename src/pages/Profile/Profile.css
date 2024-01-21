@@ -1,0 +1,59 @@
+/* Style de base pour le conteneur */
+.profileContainer {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Responsive design pour mobile */
+@media (max-width: 600px) {
+    .profileContainer {
+        padding: 1rem;
+    }
+
+    .cardRoot {
+        max-width: 100%;
+    }
+}
+
+.cardRoot {
+    max-width: 800px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.cardRoot:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+}
+
+.avatarRoot {
+    background-color: #3f51b5;
+    width: 56px;
+    height: 56px;
+    margin-right: 0.5rem;
+}
+
+.titleTypography {
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-left: 0.5rem;
+}
+
+.textFieldRoot {
+    margin-top: 1rem;
+    width: 100%;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.textFieldRoot:hover,
+.textFieldRoot:focus {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.icon {
+    color: #3f51b5;
+}

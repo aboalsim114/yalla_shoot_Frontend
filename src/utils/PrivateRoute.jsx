@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
+import { AuthContext } from "../context/AuthContext";
 
 const PrivateRoute = ({ children }) => {
-    const [auth, setAuth] = useState(null);
+    const { token, isLoading } = useContext(AuthContext);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-
-        setAuth(!!token);
-    }, []);
-
-    if (auth === null) {
-        return null;
+    if (isLoading) {
+        return <div>Chargement...</div>;
     }
 
-    return auth ? <Outlet /> : <Navigate to="/login" />;
+    // Redirection si non authentifié
+    if (!token) {
+        return <Navigate to="/login" />;
+    }
+
+    // Render les enfants ou l'Outlet si des enfants ne sont pas fournis
+    return children ? children : <Outlet />;
 };
 
 export default PrivateRoute;

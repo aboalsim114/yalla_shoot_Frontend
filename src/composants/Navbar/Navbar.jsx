@@ -39,14 +39,22 @@ export default function ButtonAppBar() {
     };
 
     const drawerStyle = {
-        backgroundSize: 'cover',
-        backgroundColor: '#9D2026',
-        color: '#fff',
         width: drawerWidth,
-        transition: 'width 0.5s ease-in-out',
+        transition: 'width 0.5s',
+        backgroundColor: '#9D2026',
+        color: 'white',
+        '.MuiListItemIcon-root': {
+            minWidth: 'auto',
+            marginRight: '16px',
+            color: 'white',
+        },
+        '.MuiListItemText-primary': {
+            fontSize: '0.875rem',
+        },
     };
 
     const listItemStyle = {
+        padding: '10px 20px',
         '&:hover': {
             backgroundColor: '#2222',
             color: '#fff',
@@ -103,7 +111,7 @@ export default function ButtonAppBar() {
                 <List>
                     {DrawerList.map((item, index) => (
                         <React.Fragment key={item.to}>
-                            {index > 0 && <Divider />}
+                            {index > 0 && <Divider style={{ backgroundColor: 'grey' }} />}
                             <ListItem component={Link} to={item.to} button sx={listItemStyle}>
                                 <ListItemIcon>{item.icon}</ListItemIcon>
                                 <ListItemText primary={item.path} />
