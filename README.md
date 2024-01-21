@@ -14,7 +14,7 @@
 8. [Licence](#licence)
 
 ## Introduction
-YallaShoot est une solution web et mobile hybride innovante destinée à connecter les équipes sportives en manque de joueurs avec des sportifs disponibles dans leur région. Que ce soit pour le football, le basketball, ou même des jeux de cartes, YallaShoot facilite la rencontre entre passionnés de sport. De plus, l'application propose une fonctionnalité unique d'estimation des calories brûlées pendant les activités sportives, basée sur une méthodologie scientifique rigoureuse.
+YallaShoot est une solution web et mobile hybride innovante destinée à connecter les équipes sportives en manque de joueurs avec des sportifs disponibles dans leur région. Que ce soit pour le football, le basketball, ou même Tennis , YallaShoot facilite la rencontre entre passionnés de sport. De plus, l'application propose une fonctionnalité unique d'estimation des calories brûlées pendant les activités sportives
 
 ## Fonctionnalités Clés
 - **Matching Équipe-Joueur** : Trouvez des joueurs locaux pour compléter votre équipe en quelques clics.
@@ -36,7 +36,7 @@ YallaShoot est une solution web et mobile hybride innovante destinée à connect
 - React.js
 
 ### Étapes d'Installation
-1. Clonez le dépôt : `git clone [URL du dépôt]`.
+1. Clonez le dépôt : `git clone https://github.com/aboalsim114/yalla_shoot_Frontend.git`.
 2. Naviguez dans le répertoire du projet et installez les dépendances frontales : `npm install`.
 5. Lancez l'application frontend : `npm start`.
 6. Accédez à `http://localhost:3000` dans votre navigateur pour voir l'application en action.
@@ -53,5 +53,4 @@ YallaShoot est une solution web et mobile hybride innovante destinée à connect
 ## Guide d'Utilisation
 - **Connexion** : Authentifiez-vous pour accéder à toutes les fonctionnalités.
 - **Tableau de Bord** : Gérez vos matchs, visualisez les statistiques et suivez vos performances.
-- **Mobile** : Utilisez l'application mobile pour une expérience complète en déplacement.
 
