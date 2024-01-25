@@ -1,14 +1,18 @@
-import React from 'react';
-import { TextField, Button, Typography, Box, Container, InputAdornment } from '@mui/material';
+import React, { useState } from 'react';
+import { TextField, Button, Typography, Box, Container, InputAdornment, Snackbar, IconButton } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import PhoneIcon from '@mui/icons-material/Phone';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import './RegisterStyle.css';
 import Navbar from "../../composants/Navbar/Navbar";
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
+import axios from 'axios';
+import MuiAlert from '@mui/material/Alert';
 
+import { useNavigate } from 'react-router-dom';
 // Schéma de validation avec Yup
 const RegisterSchema = Yup.object().shape({
     firstname: Yup.string().required('Veuillez entrer votre prénom.'),
@@ -29,10 +33,63 @@ const RegisterSchema = Yup.object().shape({
     phone: Yup.string()
         .matches(/^[0-9]+$/, 'Le numéro de téléphone doit contenir uniquement des chiffres.')
         .required('Veuillez entrer votre numéro de téléphone.'),
+    profilePicture: Yup.mixed()
+        .required("Une photo de profil est requise.")
 });
 
 
 export default function Register() {
+    const navigate = useNavigate();
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [profilePicture, setProfilePicture] = useState(null);
+
+
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenSnackbar(false);
+    };
+
+
+    const handleSubmit = async (formValues, { setSubmitting }) => {
+        try {
+            const data = {
+                firstName: formValues.firstname,
+                lastName: formValues.lastname,
+                age: formValues.age,
+                email: formValues.email,
+                password: formValues.motDePasse,
+                phone: formValues.phone,
+                profile_picture: profilePicture,
+            };
+
+            let url = 'http://localhost:8888/api/v1/auth/player/register';
+            const response = await axios.post(url, data);
+
+            if (response.status === 200) {
+                setOpenSnackbar(true);
+                setTimeout(() => navigate('/login'), 3000);
+            } else {
+                console.error('Erreur lors de l\'inscription');
+            }
+        } catch (error) {
+            console.error('Erreur lors de l\'inscription:', error);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+
+
+    const handleImageChange = (event) => {
+        if (event.currentTarget.files && event.currentTarget.files[0]) {
+            setProfilePicture(event.currentTarget.files[0]);
+        }
+    };
+
+
     return (
         <>
             <Navbar />
@@ -109,9 +166,9 @@ export default function Register() {
                                 phone: '',
                             }}
                             validationSchema={RegisterSchema}
-                            onSubmit={(values) => { console.log(values); }}
+                            onSubmit={handleSubmit}
                         >
-                            {({ errors, touched }) => (
+                            {({ errors, touched, setFieldValue }) => (
                                 <Form className="form">
                                     <Field as={TextField}
                                         label="Prénom"
@@ -225,6 +282,28 @@ export default function Register() {
                                         helperText={touched.phone ? errors.phone : ""}
                                         error={touched.phone && Boolean(errors.phone)}
                                     />
+
+                                    <Box textAlign="center" mt={2}>
+                                        <input
+                                            accept="image/*"
+                                            style={{ display: 'none' }}
+                                            id="raised-button-file"
+                                            multiple
+                                            type="file"
+                                            onChange={(event) => {
+                                                setFieldValue("profilePicture", event.currentTarget.files[0]);
+                                                handleImageChange(event);
+                                            }}
+                                        />
+                                        <label htmlFor="raised-button-file">
+                                            <Button variant="outlined" component="span" startIcon={<PhotoCamera />}>
+                                                Télécharger Image
+                                            </Button>
+                                        </label>
+                                        {touched.profilePicture && errors.profilePicture && (
+                                            <Typography color="error">{errors.profilePicture}</Typography>
+                                        )}
+                                    </Box>
                                     <Button
                                         type="submit"
                                         variant="contained"
@@ -239,6 +318,11 @@ export default function Register() {
                     </Box>
                 </Box>
             </Container>
+            <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                <MuiAlert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                    Utilisateur bien inscrit !
+                </MuiAlert>
+            </Snackbar>
         </>
     );
 }

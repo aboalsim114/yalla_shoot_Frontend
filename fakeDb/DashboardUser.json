@@ -1,0 +1,40 @@
+{
+    "sportsData": {
+        "Équipes": 128,
+        "Joueurs": 1024,
+        "matches": 390,
+        "MoyDistance": 20
+    },
+    "calorieData": [
+        {
+            "id": 0,
+            "value": 500,
+            "label": "Football"
+        },
+        {
+            "id": 1,
+            "value": 300,
+            "label": "Basketball"
+        },
+        {
+            "id": 2,
+            "value": 200,
+            "label": "Tennis"
+        }
+    ],
+    "recentMatches": [
+        "Match 1 vs Team A",
+        "Match 2 vs Team B",
+        "Match 3 vs Team C"
+    ],
+    "EquipeRechercheJoueurs": [
+        "Team A",
+        "Team B",
+        "Team C"
+    ],
+    "userProfile": {
+        "name": "sami abdulhalim",
+        "email": "sabdulhalim@example.com",
+        "profilePic": "/path/to/profilePic.jpg"
+    }
+}

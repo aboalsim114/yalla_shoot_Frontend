@@ -83,7 +83,7 @@ export default function RechercheEquipe() {
 
                                         <Grid item xs={12}>
                                             <Autocomplete
-                                                freeSolo
+
                                                 options={suggestions}
                                                 onInputChange={(event, newInputValue) => handleLocationInputChange(event, newInputValue, setFieldValue)}
                                                 renderInput={(params) => (

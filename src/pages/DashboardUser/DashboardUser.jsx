@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     Box, Typography, Grid, Card, CardContent, useTheme, CardHeader,
     IconButton, Tooltip, LinearProgress, Avatar, Stack, List, ListItem, ListItemText, Divider, Paper
@@ -13,9 +13,35 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import DataCard from '../../composants/DashboardUser/DataCard';
 import GraphCard from '../../composants/DashboardUser/GraphCard';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useParams } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
+import axios from "axios"
 export default function DashboardUser() {
     const theme = useTheme();
+    const [data, setData] = useState([])
+    const { id } = useParams();
+    const [profileUserData, setProfileUserData] = useState([])
+    const { token } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+
+
+
+    useEffect(() => {
+        axios.get(`http://localhost:8888/api/v1/users/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                setProfileUserData(response.data)
+            })
+            .catch(error => {
+                console.log(error)
+            })
+    }, [])
 
     const sportsData = {
         Équipes: 128,
@@ -49,7 +75,7 @@ export default function DashboardUser() {
                 </Paper>
 
                 <Grid container spacing={4} justifyContent="center">
-                    {/* Data cards */}
+
                     <Grid item xs={12} sm={6} lg={3}>
                         <Stack spacing={2}>
                             <DataCard title="Équipes" value={sportsData.Équipes} IconComponent={SportsSoccerIcon} progress={80} />

@@ -14,6 +14,7 @@ import EquipeDetailPage from './pages/DashboardUser/EquipeDetailPage';
 import CreateTeam from './pages/Admin/CreateTeam';
 import Profile from "./pages/Profile/Profile"
 import { AuthProvider } from './context/AuthContext';
+import DashboardAdmin from './pages/Admin/Dashboard/DashboardAdmin';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -25,15 +26,16 @@ root.render(
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/DashboardAdmin/:id" element={<DashboardAdmin />} />
 
-            <Route path="/DashboardUser/:id" element={<DashboardUser />} />
-            <Route path="/RechercheEquipe" element={<RechercheEquipe />} />
-            <Route path="/EquipeDetailPage/:id" element={<EquipeDetailPage />} />
-            <Route path="/CreateTeam/" element={<CreateTeam />} />
-            <Route path="/Profile/:id" element={<Profile />} />
+
 
             <Route element={<PrivateRoute />}>
-
+              <Route path="/DashboardUser/:id" element={<DashboardUser />} />
+              <Route path="/RechercheEquipe" element={<RechercheEquipe />} />
+              <Route path="/EquipeDetailPage/:id" element={<EquipeDetailPage />} />
+              <Route path="/CreateTeam/" element={<CreateTeam />} />
+              <Route path="/Profile/:id" element={<Profile />} />
             </Route>
 
 

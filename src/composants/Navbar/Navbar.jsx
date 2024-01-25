@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     AppBar,
     Box,
@@ -22,17 +22,28 @@ import { ThemeContext } from '../../context/ThemeContext';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Tooltip from '@mui/material/Tooltip';
-
+import { AuthContext } from '../../context/AuthContext';
 const drawerWidth = 240;
 
 export default function ButtonAppBar() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(true);
     const { theme, toggleTheme } = useContext(ThemeContext);
-
+    const { token } = useContext(AuthContext);
+    const { updateToken } = useContext(AuthContext)
+    const navigate = useNavigate();
     const handleMenuIconClick = () => {
         setDrawerOpen(!drawerOpen);
     };
+
+
+
+    const handleLogout = () => {
+
+        updateToken(null);
+
+    };
+
 
     const handleThemeChange = () => {
         toggleTheme();
@@ -71,11 +82,13 @@ export default function ButtonAppBar() {
     // Liste pour les utilisateurs connectés
     const DrawerListLoggedIn = [
         { to: '/DashboardUser/:id', path: 'Acceuil', icon: <DashboardIcon /> },
-        { to: '/createTeam', path: 'cree une equipe', icon: <SettingsIcon /> },
-        { to: '/rechercheEquipe', path: 'rechercher une equipe', icon: <ExitToAppIcon /> },
+        { to: '/CreateTeam', path: 'cree une equipe', icon: <SettingsIcon /> },
+        { to: '/RechercheEquipe', path: 'rechercher une equipe', icon: <ExitToAppIcon /> },
+        { path: 'Déconnexion', icon: <ExitToAppIcon />, action: handleLogout },
+
     ];
 
-    const DrawerList = isUserLoggedIn ? DrawerListLoggedIn : DrawerListLoggedOut;
+    const DrawerList = token ? DrawerListLoggedIn : DrawerListLoggedOut;
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -112,7 +125,7 @@ export default function ButtonAppBar() {
                     {DrawerList.map((item, index) => (
                         <React.Fragment key={item.to}>
                             {index > 0 && <Divider style={{ backgroundColor: 'grey' }} />}
-                            <ListItem component={Link} to={item.to} button sx={listItemStyle}>
+                            <ListItem component={Link} to={item.to} button sx={listItemStyle} onClick={item.path === 'Déconnexion' && handleLogout}>
                                 <ListItemIcon>{item.icon}</ListItemIcon>
                                 <ListItemText primary={item.path} />
                             </ListItem>

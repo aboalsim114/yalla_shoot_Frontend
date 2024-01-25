@@ -1,0 +1,22 @@
+{
+    "users": [
+        {
+            "id": "1",
+            "lastname": "sami",
+            "firstname": "abdulhalim",
+            "email": "sami@gmail.com",
+            "password": "samisami",
+            "phone": "0787896585",
+            "age": 5
+        },
+        {
+            "id": "b0d7",
+            "firstname": "test",
+            "lastname": "test",
+            "age": 60,
+            "email": "test@edu.ece.fr",
+            "password": "samisami",
+            "phone": "0611863566"
+        }
+    ]
+}
