@@ -26,3 +26,12 @@ body.dark {
 body.dark .MuiIconButton-root {
     color: var(--primary-text-color-dark);
 }
+
+
+* {
+    -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}

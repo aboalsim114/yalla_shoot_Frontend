@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../../composants/Navbar/Navbar';
 import './HomePageStyle.css';
 import BG from "../../assets/BG.png";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 export default function HomePage() {
+    const token = localStorage.getItem('token');
+    const id = localStorage.getItem('id');
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (token) {
+            navigate(`/DashboardUser/${id}`);
+        }
+    }, [])
+
 
     return (
         <>

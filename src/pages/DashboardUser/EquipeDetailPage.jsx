@@ -66,8 +66,6 @@ export default function EquipeDetailPage() {
                         </Card>
                     </Grid>
 
-
-
                     <Grid item xs={12}>
                         <Card sx={{ borderRadius: 2 }}>
                             <CardHeader title="Rejoindre l'Équipe" sx={{ backgroundColor: '#9D2026', color: '#fff' }} />

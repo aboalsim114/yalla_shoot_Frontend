@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardMedia, CardActionArea, Typography, Box, Button } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { Navigate } from 'react-router-dom';
 
 export default function CardEquipe({ team }) {
     return (
@@ -54,7 +55,7 @@ export default function CardEquipe({ team }) {
                             <LocationOnIcon sx={{ mr: 0.5 }} />
                             {team.location}
                         </Typography>
-                        <Button size="small" variant="outlined" sx={{ textTransform: 'none' }}>
+                        <Button onClick={() => Navigate(`EquipeDetailPage/fdsfds76778hn`)} size="small" variant="outlined" sx={{ textTransform: 'none' }}>
                             Plus d'infos
                         </Button>
                     </Box>

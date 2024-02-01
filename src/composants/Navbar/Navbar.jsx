@@ -11,39 +11,57 @@ import {
     Toolbar,
     Typography,
     Divider,
-    Drawer
+    Drawer,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { ThemeContext } from '../../context/ThemeContext';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Tooltip from '@mui/material/Tooltip';
+import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
+import { ThemeContext } from '../../context/ThemeContext';
 const drawerWidth = 240;
 
 export default function ButtonAppBar() {
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [isUserLoggedIn, setIsUserLoggedIn] = useState(true);
     const { theme, toggleTheme } = useContext(ThemeContext);
-    const { token } = useContext(AuthContext);
-    const { updateToken } = useContext(AuthContext)
+    const { updateToken } = useContext(AuthContext);
+
+    const token = localStorage.getItem('token');
+    const role_user = localStorage.getItem('role');
     const navigate = useNavigate();
+
     const handleMenuIconClick = () => {
         setDrawerOpen(!drawerOpen);
     };
 
+    const handleLogout = async () => {
+        try {
+            const id = localStorage.getItem('id');
+            const role_user = localStorage.getItem('role');
+            const conditionUrlApi = role_user === 'ROLE_ADMIN' ? 'admin' : role_user === 'ROLE_PLAYER' ? 'player' : "organizer";
 
+            const url = `http://localhost:8888/api/${conditionUrlApi}/logout`;
+            await axios.patch(
+                url,
+                { id: id },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
 
-    const handleLogout = () => {
-
-        updateToken(null);
-
+            localStorage.removeItem('token');
+            localStorage.removeItem('id');
+            updateToken(null);
+            navigate('/login');
+        } catch (error) {
+            console.log(error);
+        }
     };
-
 
     const handleThemeChange = () => {
         toggleTheme();
@@ -72,21 +90,47 @@ export default function ButtonAppBar() {
         },
     };
 
-    // Liste pour les utilisateurs non connectés
     const DrawerListLoggedOut = [
-        { to: '/', path: 'Acceuil', icon: <DashboardIcon /> },
+        { to: '/', path: 'Accueil', icon: <DashboardIcon /> },
         { to: '/login', path: 'Connexion', icon: <AccountCircleIcon /> },
         { to: '/register', path: 'Inscription', icon: <AccountCircleIcon /> },
     ];
 
-    // Liste pour les utilisateurs connectés
     const DrawerListLoggedIn = [
-        { to: '/DashboardUser/:id', path: 'Acceuil', icon: <DashboardIcon /> },
-        { to: '/CreateTeam', path: 'cree une equipe', icon: <SettingsIcon /> },
-        { to: '/RechercheEquipe', path: 'rechercher une equipe', icon: <ExitToAppIcon /> },
-        { path: 'Déconnexion', icon: <ExitToAppIcon />, action: handleLogout },
+        role_user === 'ROLE_ADMIN' && {
+            to: `/DashboardAdmin/${localStorage.getItem('id')}`,
+            path: 'Dashboard Admin',
+            icon: <SettingsIcon />,
+        },
+        role_user === 'ROLE_PLAYER' && {
+            to: `/DashboardUser/${localStorage.getItem('id')}`,
+            path: 'Accueil',
+            icon: <DashboardIcon />,
+        },
+        role_user === 'ROLE_PLAYER' && {
+            to: `/Profile/${localStorage.getItem('id')}`,
+            path: 'Mon Profile',
+            icon: <ExitToAppIcon />,
+        },
+        role_user === 'ROLE_PLAYER' && {
+            to: `/RechercheGame/${localStorage.getItem('id')}`,
+            path: 'Rechercher un Jeu',
+            icon: <ExitToAppIcon />,
+        },
+        role_user === 'ROLE_PLAYER' && {
+            to: '/CreateGame',
+            path: 'Créer un Jeu',
+            icon: <ExitToAppIcon />,
+        },
 
-    ];
+        role_user === 'ROLE_ORGANIZER' && {
+            to: `/DashboardOrganizer/${localStorage.getItem('id')}`,
+            path: 'Dashboard Organisateur',
+            icon: <SettingsIcon />,
+        },
+
+        { path: 'Déconnexion', icon: <ExitToAppIcon />, action: handleLogout },
+    ].filter(Boolean);
 
     const DrawerList = token ? DrawerListLoggedIn : DrawerListLoggedOut;
 
@@ -96,7 +140,7 @@ export default function ButtonAppBar() {
                 position="static"
                 sx={{
                     marginLeft: drawerOpen ? `${drawerWidth}px` : '0',
-                    backgroundColor: "#9D2026"
+                    backgroundColor: '#9D2026',
                 }}
             >
                 <Toolbar>
@@ -110,9 +154,7 @@ export default function ButtonAppBar() {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant="h6" sx={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
-                        Yallashoot
-                    </Typography>
+                    <Typography variant="h6" sx={{ flexGrow: 1 }}></Typography>
                     <Tooltip title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}>
                         <IconButton onClick={handleThemeChange} color="inherit">
                             {theme === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
@@ -125,7 +167,13 @@ export default function ButtonAppBar() {
                     {DrawerList.map((item, index) => (
                         <React.Fragment key={item.to}>
                             {index > 0 && <Divider style={{ backgroundColor: 'grey' }} />}
-                            <ListItem component={Link} to={item.to} button sx={listItemStyle} onClick={item.path === 'Déconnexion' && handleLogout}>
+                            <ListItem
+                                component={Link}
+                                to={item.to}
+                                button
+                                sx={listItemStyle}
+                                onClick={item.path === 'Déconnexion' && handleLogout}
+                            >
                                 <ListItemIcon>{item.icon}</ListItemIcon>
                                 <ListItemText primary={item.path} />
                             </ListItem>

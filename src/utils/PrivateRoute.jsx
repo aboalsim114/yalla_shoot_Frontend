@@ -4,18 +4,18 @@ import { AuthContext } from "../context/AuthContext";
 
 const PrivateRoute = ({ children }) => {
     const { token, isLoading } = useContext(AuthContext);
+    const ToeknLocal = localStorage.getItem('token');
 
     if (isLoading) {
         return <div>Chargement...</div>;
     }
 
-    // Redirection si non authentifié
-    if (!token) {
+    if (!token && !ToeknLocal) {
         return <Navigate to="/login" />;
     }
 
     // Render les enfants ou l'Outlet si des enfants ne sont pas fournis
-    return children ? children : <Outlet />;
+    return <Outlet />;
 };
 
 export default PrivateRoute;

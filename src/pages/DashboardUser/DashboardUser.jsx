@@ -16,39 +16,80 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-
+import ListSubheader from '@mui/material/ListSubheader';
+import ListItemButton from '@mui/material/ListItemButton';
+import RecentGamesCard from '../../composants/DashboardUser/RecentGamesCard';
 import axios from "axios"
+import CardDemande from '../../composants/DashboardUser/CardDemande';
 export default function DashboardUser() {
     const theme = useTheme();
-    const [data, setData] = useState([])
     const { id } = useParams();
     const [profileUserData, setProfileUserData] = useState([])
-    const { token } = useContext(AuthContext);
+    const token = localStorage.getItem('token');
     const navigate = useNavigate();
-
+    const [recentGames, setRecentGames] = useState([]);
 
 
 
     useEffect(() => {
-        axios.get(`http://localhost:8888/api/v1/users/${id}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-            .then(response => {
-                setProfileUserData(response.data)
-            })
-            .catch(error => {
-                console.log(error)
-            })
-    }, [])
+        const token = localStorage.getItem('token');
+        console.log('Token:', token);
 
-    const sportsData = {
-        Équipes: 128,
-        Joueurs: 1024,
-        matches: 390,
-        MoyDistance: 20
+        if (!token) {
+            navigate('/login');
+        } else {
+            fetchUserInfo(token);
+        }
+    }, [navigate, id, token]);
+
+
+    useEffect(() => {
+        const fetchRecentGames = async () => {
+            try {
+                const response = await axios.get('http://localhost:8888/api/player/games', {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (response.status === 200) {
+                    setRecentGames(response.data);
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération des matchs:", error);
+            }
+        };
+
+        fetchRecentGames();
+    }, [token]);
+
+
+
+    const fetchUserInfo = async (token) => {
+        try {
+            const url = `http://localhost:8888/api/player/user/${id}`;
+            const response = await axios.get(url, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (response.status === 200) {
+                setProfileUserData(response.data);
+                console.log(profileUserData);
+            } else {
+                console.error('Réponse de l’API non réussie:', response);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des données de l’utilisateur:', error);
+        }
     };
+
+
+
+
+
+
+
+
+
+
+
 
     const calorieData = [
         { id: 0, value: 500, label: 'Football' },
@@ -56,8 +97,6 @@ export default function DashboardUser() {
         { id: 2, value: 200, label: 'Tennis' },
     ];
 
-    const recentMatches = ['Match 1 vs Team A', 'Match 2 vs Team B', 'Match 3 vs Team C'];
-    const EquipeRechercheJoueurs = ['Team A', 'Team B', 'Team C'];
 
     return (
         <>
@@ -69,22 +108,28 @@ export default function DashboardUser() {
                         <AccountCircleIcon sx={{ fontSize: 80 }} />
                     </Avatar>
                     <Box>
-                        <Typography variant="h5" sx={{ fontWeight: 'medium' }}>sami abdulhalim </Typography>
-                        <Typography variant="subtitle1" color="textSecondary">sabdulhalim@example.com</Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 'medium' }}>{profileUserData.firstName + " " + profileUserData.lastName}</Typography>
+                        <Typography variant="subtitle1" color="textSecondary">{profileUserData.email}</Typography>
                     </Box>
                 </Paper>
 
                 <Grid container spacing={4} justifyContent="center">
 
                     <Grid item xs={12} sm={6} lg={3}>
-                        <Stack spacing={2}>
-                            <DataCard title="Équipes" value={sportsData.Équipes} IconComponent={SportsSoccerIcon} progress={80} />
-                            <DataCard title="Matches" value={sportsData.matches} IconComponent={FitnessCenterIcon} progress={60} />
-                        </Stack>
+                        <Card sx={{ maxHeight: 400, overflow: 'auto' }}>
+                            <List>
+                                <Typography gutterBottom variant="h6" component="div" sx={{ textAlign: 'center' }}>
+                                    Liste des Demandes
+                                </Typography>
+                                <CardDemande user={"sami abdulhalim"} role={"Administrateur"} details={"Je souhaite rejoindre l'équipe de football"} status={"Refusée"} />
+                                <CardDemande user={"rayan jerbi"} role={"player"} details={"Je souhaite rejoindre l'équipe de football"} status={"Acceptée"} />
+                                <CardDemande user={"jihad Glei"} role={"player"} details={"Je souhaite rejoindre l'équipe de football"} status={"En cours"} />
+                            </List>
+                        </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} lg={6}>
-                        <GraphCard title="Calories brûlées par sport">
+                        <GraphCard >
                             <PieChart
                                 series={[
                                     {
@@ -103,53 +148,12 @@ export default function DashboardUser() {
 
 
                     <Grid item xs={12} sm={6} lg={3}>
-                        <Stack spacing={2}>
-                            <DataCard title="Joueurs" value={sportsData.Joueurs} IconComponent={PeopleOutlineIcon} progress={70} />
-                            <DataCard title="Moy. Distance (km)" value={sportsData.MoyDistance} IconComponent={LocationOnIcon} progress={50} />
-                        </Stack>
+                        <RecentGamesCard games={recentGames} />
                     </Grid>
+
                 </Grid>
 
-                <Paper elevation={3} sx={{ mt: 4, p: 2 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2, color: theme.palette.secondary.main }}>
-                        Informations supplémentaires
-                    </Typography>
-                    <Grid container spacing={4}>
-                        <Grid item xs={12} md={6}>
-                            <Card>
-                                <CardHeader title="Matchs récents" />
-                                <List>
-                                    {recentMatches.map((match, index) => (
-                                        <React.Fragment key={index}>
-                                            <ListItem>
-                                                <ListItemText primary={match} />
-                                            </ListItem>
-                                            {index < recentMatches.length - 1 && <Divider />}
-                                        </React.Fragment>
-                                    ))}
-                                </List>
-                            </Card>
-                        </Grid>
 
-
-
-                        <Grid item xs={12} md={6}>
-                            <Card>
-                                <CardHeader title="Equipe Recherche Joueurs" />
-                                <List>
-                                    {EquipeRechercheJoueurs.map((team, index) => (
-                                        <React.Fragment key={index}>
-                                            <ListItem>
-                                                <ListItemText primary={team} />
-                                            </ListItem>
-                                            {index < EquipeRechercheJoueurs.length - 1 && <Divider />}
-                                        </React.Fragment>
-                                    ))}
-                                </List>
-                            </Card>
-                        </Grid>
-                    </Grid>
-                </Paper>
             </Box>
         </>
     );

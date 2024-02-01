@@ -51,12 +51,32 @@ export default function Login() {
 
 
             if (response.status === 200 && response.data.token) {
-                updateToken(response.data.token); // Mettre à jour le token dans le contexte
-                if (response.data.userId) {
-                    updateUserId(response.data.userId); // Mettre à jour l'ID de l'utilisateur dans le contexte
+                updateToken(response.data.token);
+                localStorage.setItem("token", response.data.token);
+                localStorage.setItem("role", response.data.role);
+
+                if (response.data.id) {
+                    updateUserId(response.data.id);
+                    localStorage.setItem("id", response.data.id);
                 }
                 setOpenSnackbar(true);
-                setTimeout(() => navigate(`/DashboardUser/${response.data.userId}`), 3000); // Redirige après 3 secondes
+                if (response.data.role === 'ROLE_PLAYER') {
+                    setTimeout(() => navigate(`/DashboardUser/${response.data.id}`), 3000);
+
+                }
+
+                else if (response.data.role === 'ROLE_ADMIN') {
+                    setOpenSnackbar(true);
+                    setTimeout(() => navigate(`/DashboardAdmin/${response.data.id}`), 3000);
+                }
+
+                else if (response.data.role === 'ROLE_ORGANIZER') {
+                    setOpenSnackbar(true);
+                    setTimeout(() => navigate(`/DashboardOrganizer/${response.data.id}`), 3000);
+                }
+
+
+
             } else {
                 console.error('Connexion échouée');
             }

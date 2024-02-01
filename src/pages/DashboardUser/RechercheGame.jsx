@@ -10,13 +10,14 @@ import SearchIcon from '@mui/icons-material/Search';
 import Navbar from "../../composants/Navbar/Navbar";
 import axios from 'axios';
 import CardEquipe from '../../composants/DashboardUser/CardEquipe';
+import { Link } from 'react-router-dom';
 
 const SearchSchema = Yup.object().shape({
     sport: Yup.string().required('Le choix d\'un sport est obligatoire'),
     location: Yup.string().required('La saisie d\'un emplacement est obligatoire'),
 });
 
-export default function RechercheEquipe() {
+export default function RechercheGame() {
     const [suggestions, setSuggestions] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
 
@@ -40,7 +41,7 @@ export default function RechercheEquipe() {
             <Box sx={{ width: '100%', minHeight: '100vh' }}>
                 <Container maxWidth="lg" sx={{ py: 5 }}>
                     <Typography variant="h3" sx={{ mb: 5, fontWeight: 'bold', textAlign: 'center', color: '#333' }}>
-                        Recherche d'équipes
+                        Recherche un Jeu
                     </Typography>
 
                     <Formik
