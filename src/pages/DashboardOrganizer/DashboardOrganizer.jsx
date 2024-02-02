@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     Box, Card, CardContent, CardActions, Grid, Typography, IconButton, Avatar,
-    List, ListItem, ListItemText, Button, Tooltip, useTheme, Chip, Divider
+    List, ListItem, ListItemText, Button, Tooltip, Modal, TextField, FormControl,
+    Divider, Chip
 } from '@mui/material';
 import Navbar from "../../composants/Navbar/Navbar";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -10,8 +11,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import { PieChart } from '@mui/x-charts/PieChart';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-
-
+import ProfileEditModal from "../../composants/DashboardOrganizer/ModalEditProfile"
+import { useTheme } from '@mui/material/styles';
 export default function DashboardOrganizer() {
     const theme = useTheme();
     const token = localStorage.getItem('token');
@@ -19,6 +20,14 @@ export default function DashboardOrganizer() {
     const [profileUserData, setProfileUserData] = useState([])
     const { id } = useParams()
     const navigate = useNavigate()
+
+    const [openModal, setOpenModal] = useState(false);
+
+    const handleOpenModal = () => setOpenModal(true);
+
+    const handleCloseModal = () => setOpenModal(false);
+
+
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -35,7 +44,7 @@ export default function DashboardOrganizer() {
             const url = `http://localhost:8888/api/organizer/user/${id}`;
 
             const response = await axios.get(url, {
-                headers: { "Authorization": `Bearer ${token}` }
+                headers: { "Authorization": `Bearer ${token}` },
             });
 
             if (response.status === 200) {
@@ -99,7 +108,7 @@ export default function DashboardOrganizer() {
                             </CardContent>
                             <Divider variant="middle" />
                             <CardActions sx={{ justifyContent: 'center', py: 2 }}>
-                                <Button startIcon={<EditIcon />} variant="contained" sx={{ bgcolor: "#9D2026" }} size="large">
+                                <Button startIcon={<EditIcon />} variant="contained" sx={{ bgcolor: "#9D2026" }} size="large" onClick={handleOpenModal}>
                                     Modifier le profil
                                 </Button>
                             </CardActions>
@@ -163,7 +172,6 @@ export default function DashboardOrganizer() {
                                                 height={200}
                                             />
                                         </Box>
-                                        {/* Ajouter ici les légendes */}
                                     </CardContent>
                                 </Card>
                             </Grid>
@@ -171,6 +179,12 @@ export default function DashboardOrganizer() {
                         </Grid>
                     </Grid>
                 </Grid>
+                <ProfileEditModal
+                    open={openModal}
+                    handleClose={handleCloseModal}
+                    userData={profileUserData}
+                    setUserData={setProfileUserData}
+                />
             </Box>
         </>
     );

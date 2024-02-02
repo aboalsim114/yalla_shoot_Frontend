@@ -21,7 +21,7 @@ export default function DashboardAdmin() {
     const fetchUsers = async () => {
         setLoadingUsers(true);
         try {
-            const response = await axios.get('http://localhost:8888/api/admin/users', { headers: { "Authorization": `Bearer ${token}` } });
+            const response = await axios.get(`http://localhost:8888/api/admin/users`, { headers: { "Authorization": `Bearer ${token}` } });
             if (response.status === 200) {
                 setUsers(response.data.map((user, index) => ({ ...user, id: index })));
             }

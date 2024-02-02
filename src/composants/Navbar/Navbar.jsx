@@ -117,16 +117,18 @@ export default function ButtonAppBar() {
             path: 'Rechercher un Jeu',
             icon: <ExitToAppIcon />,
         },
-        role_user === 'ROLE_PLAYER' && {
-            to: '/CreateGame',
-            path: 'Créer un Jeu',
-            icon: <ExitToAppIcon />,
-        },
+
 
         role_user === 'ROLE_ORGANIZER' && {
             to: `/DashboardOrganizer/${localStorage.getItem('id')}`,
-            path: 'Dashboard Organisateur',
+            path: 'Dashboard ',
             icon: <SettingsIcon />,
+        },
+
+        role_user === 'ROLE_ORGANIZER' && {
+            to: '/CreateGame',
+            path: 'Créer un Jeu',
+            icon: <ExitToAppIcon />,
         },
 
         { path: 'Déconnexion', icon: <ExitToAppIcon />, action: handleLogout },
