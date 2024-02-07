@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Box, Typography, Grid, Card, Paper, CircularProgress, useTheme, useMediaQuery
+    Box, Typography, Grid, Card, Paper, CircularProgress, useTheme, useMediaQuery, Button
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import Navbar from "../../../composants/Navbar/Navbar";
@@ -23,7 +23,7 @@ export default function DashboardAdmin() {
         try {
             const response = await axios.get(`http://localhost:8888/api/admin/users`, { headers: { "Authorization": `Bearer ${token}` } });
             if (response.status === 200) {
-                setUsers(response.data.map((user, index) => ({ ...user, id: index })));
+                setUsers(response.data);
             }
         } catch (error) {
             console.error('Erreur lors de la récupération des utilisateurs:', error);
@@ -35,9 +35,9 @@ export default function DashboardAdmin() {
     const fetchGames = async () => {
         setLoadingGames(true);
         try {
-            const response = await axios.get('http://localhost:8888/api/admin/games/dates', { headers: { "Authorization": `Bearer ${token}` } });
+            const response = await axios.get('http://localhost:8888/api/admin/games', { headers: { "Authorization": `Bearer ${token}` } });
             if (response.status === 200) {
-                setGames(response.data.map((game, index) => ({ ...game, id: index })));
+                setGames(response.data);
             }
         } catch (error) {
             console.error('Erreur lors de la récupération des jeux:', error);
@@ -46,12 +46,51 @@ export default function DashboardAdmin() {
         }
     };
 
+
+    const deleteUser = async (id) => {
+        const isConfirmed = window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');
+        if (isConfirmed) {
+            try {
+                const response = await axios.delete(`http://localhost:8888/api/admin/user/drop`, { data: { id }, headers: { "Authorization": `Bearer ${token}` } });
+                if (response.status === 200) {
+                    alert('Utilisateur supprimé avec succès.');
+                    fetchUsers();
+                }
+            } catch (error) {
+                console.error('Erreur lors de la suppression de l\'utilisateur:', error);
+                alert('Erreur lors de la suppression de l\'utilisateur.');
+            }
+        }
+    };
+
+    const deleteGame = async (id) => {
+        const isConfirmed = window.confirm('Êtes-vous sûr de vouloir supprimer ce jeu ?');
+        if (isConfirmed) {
+            try {
+                const response = await axios.delete(`http://localhost:8888/api/admin/game/${id}`, { headers: { "Authorization": `Bearer ${token}` } });
+                if (response.status === 200) {
+                    fetchGames();
+                    alert('Jeu supprimé avec succès.');
+                }
+            } catch (error) {
+                console.error('Erreur lors de la suppression du jeu:', error);
+                alert('Erreur lors de la suppression du jeu.');
+            }
+        }
+    };
+
+
     const columnsUsers = [
         { field: 'id', headerName: 'ID', width: 70 },
         { field: 'firstName', headerName: 'Prénom', width: 130 },
         { field: 'lastName', headerName: 'Nom de famille', width: 130 },
         { field: 'email', headerName: 'Email', width: 200 },
-        { field: 'actions', headerName: 'Actions', width: 130 },
+        {
+            field: 'actions', headerName: 'Actions', width: 130,
+            renderCell: (params) => (
+                <Button onClick={() => deleteUser(params.row.id)}>Supprimer</Button>
+            ),
+        },
     ];
 
     const columnsGames = [
@@ -59,6 +98,12 @@ export default function DashboardAdmin() {
         { field: 'name', headerName: 'Nom du jeu', width: 130 },
         { field: 'category', headerName: 'Catégorie', width: 130 },
         { field: 'date', headerName: 'Date', width: 130 },
+        {
+            field: 'actions', headerName: 'Actions', width: 130,
+            renderCell: (params) => (
+                <Button onClick={() => deleteGame(params.row.id)}>Supprimer</Button>
+            ),
+        },
     ];
 
     const theme = useTheme();
@@ -91,7 +136,7 @@ export default function DashboardAdmin() {
     return (
         <>
             <Navbar />
-            <Box sx={{ flexGrow: 1, p: 3, bgcolor: theme.palette.background.default }}>
+            <Box sx={{ flexGrow: 1, p: 3 }}>
                 <Grid container spacing={3}>
                     {/* User list */}
                     <Grid item xs={12} md={6} >
@@ -118,6 +163,7 @@ export default function DashboardAdmin() {
                             {loadingGames ? <CircularProgress /> : (
                                 <Paper style={dataGridStyle}>
                                     <DataGrid
+
                                         rows={games}
                                         columns={columnsGames}
                                         pageSize={5}

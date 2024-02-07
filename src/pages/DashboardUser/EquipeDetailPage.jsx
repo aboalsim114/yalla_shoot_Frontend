@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Grid, Card, CardContent, CardHeader, Avatar, Paper,
     List, ListItem, ListItemText, Divider, useMediaQuery, useTheme, Button
@@ -6,20 +6,72 @@ import {
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import Navbar from '../../composants/Navbar/Navbar';
-
-
+import { useParams } from 'react-router-dom'
+import axios from "axios"
+import { Snackbar } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
 export default function EquipeDetailPage() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const { id } = useParams()
+    const [gameInfo, setGameInfo] = useState([])
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [DemandeInprogess, setDemandeInProgress] = useState(false);
 
-    const equipe = {
-        nom: "Les Champions",
-        sport: "Football",
-        emplacement: "Paris",
-        description: "Une équipe passionnée de football avec un esprit de compétition fort. Nous aimons le jeu et cherchons toujours à nous améliorer.",
-        membres: ["Alex Dupont", "Sarah Martin", "John Doe", "Emma Durand"],
-        palmares: ["Championnat local 2020", "Tournoi régional 2021", "Coupe interclubs 2022"],
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenSnackbar(false);
     };
+
+    const fetchGameInfo = async () => {
+        try {
+            const url = `http://localhost:8888/api/player/game/${id}`;
+            const response = await axios.get(url, {
+                headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+            });
+
+            if (response.status === 200) {
+                setGameInfo(response.data);
+
+            }
+
+
+        }
+        catch (error) {
+            console.error("Erreur lors de la récupération des informations de l'équipe:", error);
+        }
+    }
+
+
+    useEffect(() => {
+        fetchGameInfo()
+    }, [])
+
+
+
+    const sendJoinRequest = async () => {
+        const playerId = localStorage.getItem('id');
+        const requestPayload = { note: "Je souhaite rejoindre cette équipe." };
+
+        try {
+            const response = await axios.post(`http://localhost:8888/api/player/sendRequest/${id}/${playerId}`, requestPayload, {
+                headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+            });
+
+            if (response.status === 200) {
+                console.log(response.data);
+                setDemandeInProgress(response.data.inProgress);
+                setOpenSnackbar(true);
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'envoi de la demande:", error);
+        }
+    };
+
+
+
 
     return (
         <>
@@ -30,10 +82,10 @@ export default function EquipeDetailPage() {
                         <SportsEsportsIcon sx={{ fontSize: isMobile ? 60 : 80 }} />
                     </Avatar>
                     <Typography variant={isMobile ? "h6" : "h4"} sx={{ fontWeight: 'bold', color: '#fff', mt: 2 }}>
-                        {equipe.nom}
+
                     </Typography>
                     <Typography variant="subtitle1" sx={{ color: '#fff' }}>
-                        {equipe.sport} - {equipe.emplacement}
+                        {gameInfo.category} - {gameInfo.city + " " + gameInfo.postalCode}
                     </Typography>
                 </Paper>
 
@@ -43,7 +95,7 @@ export default function EquipeDetailPage() {
                             <CardHeader title="Description de l'équipe" sx={{ backgroundColor: '#2196F3', color: '#fff' }} />
                             <CardContent>
                                 <Typography variant="body1">
-                                    {equipe.description}
+                                    {gameInfo.description}
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -51,17 +103,29 @@ export default function EquipeDetailPage() {
 
                     <Grid item xs={12} md={6}>
                         <Card sx={{ borderRadius: 2 }}>
-                            <CardHeader title="Membres de l'équipe" sx={{ backgroundColor: '#2196F3', color: '#fff' }} />
+                            <CardHeader title="Joueurs inscrits" sx={{ backgroundColor: '#2196F3', color: '#fff' }} />
                             <List>
-                                {equipe.membres.map((membre, index) => (
-                                    <React.Fragment key={index}>
-                                        <ListItem>
-                                            <Avatar><PeopleOutlineIcon /></Avatar>
-                                            <ListItemText primary={membre} sx={{ ml: 2 }} />
-                                        </ListItem>
-                                        {index < equipe.membres.length - 1 && <Divider />}
-                                    </React.Fragment>
-                                ))}
+                                <React.Fragment >
+                                    <ListItem>
+                                        <Avatar><PeopleOutlineIcon />{gameInfo.registredPlayers}</Avatar>
+
+                                    </ListItem>
+
+                                </React.Fragment>
+                            </List>
+                        </Card>
+                    </Grid>
+
+
+                    <Grid item xs={12} md={6}>
+                        <Card sx={{ borderRadius: 2 }}>
+                            <CardHeader title="Joueurs manquants" sx={{ backgroundColor: '#2196F3', color: '#fff' }} />
+                            <List>
+                                <React.Fragment >
+                                    <ListItem>
+                                        <Avatar><PeopleOutlineIcon />{gameInfo.requiredPlayers}</Avatar>
+                                    </ListItem>
+                                </React.Fragment>
                             </List>
                         </Card>
                     </Grid>
@@ -71,9 +135,9 @@ export default function EquipeDetailPage() {
                             <CardHeader title="Rejoindre l'Équipe" sx={{ backgroundColor: '#9D2026', color: '#fff' }} />
                             <CardContent>
                                 <Typography variant="body1" sx={{ mb: 2 }}>
-                                    Vous êtes passionné de football et cherchez une équipe dynamique ? Rejoignez-nous !
+                                    Vous êtes passionné de {gameInfo.category} et cherchez une équipe dynamique ? Rejoignez-nous !
                                 </Typography>
-                                <Button variant="contained" color="primary">
+                                <Button variant="contained" onClick={sendJoinRequest} disabled={gameInfo.requiredPlayers <= 0 || DemandeInprogess} color="primary">
                                     Devenir membre
                                 </Button>
                             </CardContent>
@@ -81,6 +145,11 @@ export default function EquipeDetailPage() {
                     </Grid>
                 </Grid>
             </Box>
+            <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                <MuiAlert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                    votre demande a été envoyée avec succès!
+                </MuiAlert>
+            </Snackbar>
         </>
     );
 }

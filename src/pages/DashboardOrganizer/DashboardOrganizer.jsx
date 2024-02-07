@@ -20,12 +20,50 @@ export default function DashboardOrganizer() {
     const [profileUserData, setProfileUserData] = useState([])
     const { id } = useParams()
     const navigate = useNavigate()
-
+    const [gamesList, setGamesList] = useState([]);
     const [openModal, setOpenModal] = useState(false);
-
+    const [founderId, setFounderId] = useState('');
     const handleOpenModal = () => setOpenModal(true);
 
     const handleCloseModal = () => setOpenModal(false);
+
+
+
+
+    const fetchGamesAndRequests = async () => {
+        try {
+            // Récupérer tous les jeux
+            const gamesResponse = await axios.get('http://localhost:8888/api/organizer/games', {
+                headers: { "Authorization": `Bearer ${token}` },
+            });
+            if (gamesResponse.status === 200) {
+                setGamesList(gamesResponse.data);
+
+                // Pour chaque jeu, récupérer les demandes associées
+                for (let game of gamesResponse.data) {
+                    await fetchRequestsForGame(game.id);
+                    console.log("fetchTreq", fetchRequestsForGame(game.id));
+                }
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des jeux:", error);
+        }
+    };
+
+    const fetchRequestsForGame = async (gameId) => {
+        try {
+            const requestsResponse = await axios.get(`http://localhost:8888/api/organizer/get/request/${gameId}`, {
+                headers: { "Authorization": `Bearer ${token}` },
+            });
+            if (requestsResponse.status === 200 && Array.isArray(requestsResponse.data)) {
+                // Traiter ou stocker les demandes récupérées comme nécessaire
+                console.log(`Demandes pour le jeu ${gameId}:`, requestsResponse.data);
+            }
+        } catch (error) {
+            console.error(`Erreur lors de la récupération des demandes pour le jeu ${gameId}:`, error);
+        }
+    };
+
 
 
 
@@ -34,9 +72,11 @@ export default function DashboardOrganizer() {
         if (!token) {
             navigate('/login');
         } else {
+
             fetchUserInfo();
+            fetchGamesAndRequests();
         }
-    }, [navigate, id]);
+    }, [navigate, id, token]);
 
 
     const fetchUserInfo = async () => {
@@ -57,28 +97,46 @@ export default function DashboardOrganizer() {
         }
     };
 
-
-
-
-
-
-    const handleAcceptRequest = (id) => {
-
-        setRequests((prevRequests) =>
-            prevRequests.map((request) =>
-                request.id === id ? { ...request, status: 'Accepté' } : request
-            )
-        );
+    const fetchListDemande = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8888/api/organizer/${id}/requests`, {
+                headers: { "Authorization": `Bearer ${token}` },
+            });
+            if (response.status === 200) {
+                setRequests(response.data);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des demandes:', error);
+        }
     };
 
 
-    const handleRejectRequest = (id) => {
 
-        setRequests((prevRequests) =>
-            prevRequests.map((request) =>
-                request.id === id ? { ...request, status: 'Refusé' } : request
-            )
-        );
+
+    const handleAcceptRequest = async (requestId) => {
+        try {
+            const response = await axios.patch(`http://localhost:8888/api/organizer/accept/request/${requestId}`, {}, {
+                headers: { "Authorization": `Bearer ${token}` },
+            });
+            if (response.status === 200) {
+                fetchListDemande();
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'acceptation de la demande:", error);
+        }
+    };
+
+    const handleRejectRequest = async (requestId) => {
+        try {
+            const response = await axios.patch(`http://localhost:8888/api/organizer/refuse/request/${requestId}`, {}, {
+                headers: { "Authorization": `Bearer ${token}` },
+            });
+            if (response.status === 200) {
+                fetchListDemande();
+            }
+        } catch (error) {
+            console.error("Erreur lors du refus de la demande:", error);
+        }
     };
 
 

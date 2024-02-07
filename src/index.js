@@ -32,7 +32,7 @@ root.render(
             <Route element={<PrivateRoute />}>
               <Route path="/DashboardUser/:id" element={<DashboardUser />} />
               <Route path="/RechercheGame/:id" element={<RechercheGame />} />
-              <Route path="/CreateGame/" element={<CreateGame />} />
+              <Route path="/CreateGame/:id" element={<CreateGame />} />
               <Route path="/Profile/:id" element={<Profile />} />
               <Route path="/EquipeDetailPage/:id" element={<EquipeDetailPage />} />
               <Route path="/Game/" element={<GamePage />} />

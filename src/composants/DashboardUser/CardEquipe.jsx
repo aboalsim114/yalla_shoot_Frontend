@@ -2,9 +2,11 @@
 import React from 'react';
 import { Card, CardContent, CardMedia, CardActionArea, Typography, Box, Button } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-export default function CardEquipe({ team }) {
+export default function CardEquipe({ team, gameId }) {
+    const navigate = useNavigate();
+
     return (
         <Card sx={{
             maxWidth: 345,
@@ -25,8 +27,8 @@ export default function CardEquipe({ team }) {
                     component="img"
                     height="200"
                     maxWidth="345"
-                    image={team.imageUrl}
-                    alt={team.name}
+                    image={team.imageUrl || 'https://via.placeholder.com/345x200'}
+                    alt={team.category}
                     sx={{ objectFit: 'cover' }}
                 />
                 <CardContent sx={{
@@ -37,10 +39,11 @@ export default function CardEquipe({ team }) {
                 }}>
                     <Box sx={{ mb: 2 }}>
                         <Typography gutterBottom variant="h5" component="div" sx={{ fontWeight: '500', lineHeight: '1.2' }}>
-                            {team.name}
+                            {team.category}
                         </Typography>
+
                         <Typography variant="body2" color="text.secondary">
-                            Sport: {team.sport}
+                            Sport: {team.category}
                         </Typography>
                     </Box>
                     <Box sx={{
@@ -53,9 +56,9 @@ export default function CardEquipe({ team }) {
                     }}>
                         <Typography variant="body2" color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
                             <LocationOnIcon sx={{ mr: 0.5 }} />
-                            {team.location}
+                            {team.city}
                         </Typography>
-                        <Button onClick={() => Navigate(`EquipeDetailPage/fdsfds76778hn`)} size="small" variant="outlined" sx={{ textTransform: 'none' }}>
+                        <Button onClick={() => navigate(`/EquipeDetailPage/${gameId}`)} size="small" variant="outlined" sx={{ textTransform: 'none' }}>
                             Plus d'infos
                         </Button>
                     </Box>

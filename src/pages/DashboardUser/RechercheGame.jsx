@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { Box, Typography, ToggleButtonGroup, ToggleButton, Autocomplete, TextField, Button, Container, Grid, Card, CardContent, CardMedia, CardActionArea } from '@mui/material';
+import {
+    Box, Typography, ToggleButtonGroup, ToggleButton, Autocomplete, TextField,
+    Button, Container, Grid, Card, CardContent, CardMedia, CardActionArea
+} from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import FootballIcon from '@mui/icons-material/SportsSoccer';
 import BasketballIcon from '@mui/icons-material/SportsBasketball';
@@ -10,7 +13,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import Navbar from "../../composants/Navbar/Navbar";
 import axios from 'axios';
 import CardEquipe from '../../composants/DashboardUser/CardEquipe';
-import { Link } from 'react-router-dom';
 
 const SearchSchema = Yup.object().shape({
     sport: Yup.string().required('Le choix d\'un sport est obligatoire'),
@@ -35,6 +37,30 @@ export default function RechercheGame() {
         }
     };
 
+    const handleSearchGame = async (values, { setSubmitting }) => {
+        const { sport, location } = values;
+
+
+        try {
+            const response = await axios.get(`http://localhost:8888/api/player/gamesBy/${location}/${sport}`, {
+                headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+            });
+            if (response.status === 200) {
+                setSearchResults(response.data);
+                console.log(response.data);
+            } else {
+                console.error("Erreur lors de la récupération des jeux :", response.statusText);
+                setSearchResults([]);
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des jeux :", error);
+            setSearchResults([]);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+
     return (
         <>
             <Navbar />
@@ -43,19 +69,10 @@ export default function RechercheGame() {
                     <Typography variant="h3" sx={{ mb: 5, fontWeight: 'bold', textAlign: 'center', color: '#333' }}>
                         Recherche un Jeu
                     </Typography>
-
                     <Formik
                         initialValues={{ sport: '', location: '' }}
                         validationSchema={SearchSchema}
-                        onSubmit={(values) => {
-                            console.log('Recherche d’équipes pour:', values.sport, 'à', values.location);
-                            const results = [
-                                { name: 'Équipe A', location: 'Paris', sport: 'Football', imageUrl: 'https://files.oaiusercontent.com/file-iu9tu3iN4oJ7LWxhJ4DkGJo6?se=2024-01-18T16%3A01%3A10Z&sp=r&sv=2021-08-06&sr=b&rscc=max-age%3D31536000%2C%20immutable&rscd=attachment%3B%20filename%3D6171f7ad-4746-4189-906e-277171b0364d.webp&sig=ePRDb6KXWFB8MvIHdiuBcy3G7LofJh3rodCtacqqQdw%3D' },
-                                { name: 'Équipe B', location: 'Lyon', sport: 'Basketball', imageUrl: 'https://files.oaiusercontent.com/file-h606Ddy05bw6JWjSOmunGOiG?se=2024-01-18T16%3A41%3A44Z&sp=r&sv=2021-08-06&sr=b&rscc=max-age%3D31536000%2C%20immutable&rscd=attachment%3B%20filename%3D4a591fdf-fe5e-4da0-98e7-0ffd759ce7e2.webp&sig=fekbR84EwQUjxuIPvIrdw5IaAfAFkDgFh5pNcBzFZSk%3D' },
-
-                            ];
-                            setSearchResults(results);
-                        }}
+                        onSubmit={handleSearchGame}
                     >
                         {({ values, errors, touched, handleChange, handleBlur, setFieldValue }) => (
                             <Form>
@@ -69,22 +86,21 @@ export default function RechercheGame() {
                                                 aria-label="Sport selection"
                                                 fullWidth
                                             >
-                                                <ToggleButton value="football" aria-label="Football">
+                                                <ToggleButton value="FOOT" aria-label="FOOT">
                                                     <FootballIcon /> Football
                                                 </ToggleButton>
-                                                <ToggleButton value="basketball" aria-label="Basketball">
+                                                <ToggleButton value="BASKET" aria-label="Basketball">
                                                     <BasketballIcon /> Basketball
                                                 </ToggleButton>
-                                                <ToggleButton value="cartes" aria-label="Tennis">
-                                                    <CardGameIcon /> Tennis
+                                                <ToggleButton value="TENNIS" aria-label="TENNIS">
+                                                    <CardGameIcon /> TENNIS
                                                 </ToggleButton>
                                             </ToggleButtonGroup>
                                             {errors.sport && touched.sport && <div style={{ color: "red" }}>{errors.sport}</div>}
                                         </Grid>
-
                                         <Grid item xs={12}>
                                             <Autocomplete
-
+                                                freeSolo
                                                 options={suggestions}
                                                 onInputChange={(event, newInputValue) => handleLocationInputChange(event, newInputValue, setFieldValue)}
                                                 renderInput={(params) => (
@@ -94,7 +110,6 @@ export default function RechercheGame() {
                                             {errors.location && touched.location && <div style={{ color: "red" }}>{errors.location}</div>}
                                         </Grid>
                                     </Grid>
-
                                     <Button type="submit" variant="contained" startIcon={<SearchIcon />} fullWidth sx={{ bgcolor: "#1976d2", '&:hover': { bgcolor: '#115293' }, mt: 2 }}>
                                         Rechercher
                                     </Button>
@@ -102,16 +117,16 @@ export default function RechercheGame() {
                             </Form>
                         )}
                     </Formik>
-
                     <Box sx={{ mt: 3 }}>
                         <Typography variant="h5" sx={{ mb: 2 }}>Résultats de recherche :</Typography>
                         <Grid container spacing={2}>
                             {searchResults.map((team, index) => (
                                 <Grid item xs={12} md={6} lg={4} key={index}>
-                                    <CardEquipe team={team} />
+                                    <CardEquipe team={team} gameId={team.id} />
                                 </Grid>
                             ))}
                         </Grid>
+
                     </Box>
                 </Container>
             </Box>

@@ -126,7 +126,7 @@ export default function ButtonAppBar() {
         },
 
         role_user === 'ROLE_ORGANIZER' && {
-            to: '/CreateGame',
+            to: `/CreateGame/${localStorage.getItem('id')}`,
             path: 'Créer un Jeu',
             icon: <ExitToAppIcon />,
         },

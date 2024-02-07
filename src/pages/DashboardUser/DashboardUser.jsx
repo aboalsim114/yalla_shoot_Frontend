@@ -28,19 +28,41 @@ export default function DashboardUser() {
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
     const [recentGames, setRecentGames] = useState([]);
-
-
+    const [listDemande, setListDemande] = useState([])
+    const [demandStatusData, setDemandStatusData] = useState([]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        console.log('Token:', token);
 
         if (!token) {
             navigate('/login');
         } else {
             fetchUserInfo(token);
+            fetchListDemande()
         }
-    }, [navigate, id, token]);
+    }, [navigate, id]);
+
+
+
+    // À l'intérieur de DashboardUser, après avoir récupéré `listDemande`
+
+    useEffect(() => {
+        const statusCounts = listDemande.reduce((acc, demande) => {
+            const { accepted, refused } = demande;
+            const status = accepted ? 'Acceptée' : refused ? 'Refusée' : 'En attente';
+            acc[status] = (acc[status] || 0) + 1;
+            return acc;
+        }, {});
+
+        const graphData = Object.entries(statusCounts).map(([label, value], index) => ({
+            id: index,
+            value,
+            label,
+        }));
+
+        setDemandStatusData(graphData);
+    }, [listDemande]);
+
 
 
     useEffect(() => {
@@ -71,7 +93,6 @@ export default function DashboardUser() {
 
             if (response.status === 200) {
                 setProfileUserData(response.data);
-                console.log(profileUserData);
             } else {
                 console.error('Réponse de l’API non réussie:', response);
             }
@@ -84,18 +105,27 @@ export default function DashboardUser() {
 
 
 
+    const fetchListDemande = async () => {
+        try {
+            let url = `http://localhost:8888/api/player/get/request/${id}`;
+            const response = await axios.get(url, { headers: { "Authorization": `Bearer ${token}` } });
+
+            if (response.status === 200) {
+                setListDemande(response.data);
+                console.log(response.data);
+            } else {
+                console.error('Réponse de l’API non réussie:', response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des demandes:', error);
+        }
+    };
 
 
 
 
 
 
-
-    const calorieData = [
-        { id: 0, value: 500, label: 'Football' },
-        { id: 1, value: 300, label: 'Basketball' },
-        { id: 2, value: 200, label: 'Tennis' },
-    ];
 
 
     return (
@@ -121,19 +151,32 @@ export default function DashboardUser() {
                                 <Typography gutterBottom variant="h6" component="div" sx={{ textAlign: 'center' }}>
                                     Liste des Demandes
                                 </Typography>
-                                <CardDemande user={"sami abdulhalim"} role={"Administrateur"} details={"Je souhaite rejoindre l'équipe de football"} status={"Refusée"} />
-                                <CardDemande user={"rayan jerbi"} role={"player"} details={"Je souhaite rejoindre l'équipe de football"} status={"Acceptée"} />
-                                <CardDemande user={"jihad Glei"} role={"player"} details={"Je souhaite rejoindre l'équipe de football"} status={"En cours"} />
+                                {listDemande && listDemande.length > 0 ? (
+                                    listDemande.map((demande, index) => (
+                                        <CardDemande
+                                            key={index}
+                                            user={`${demande.player.lastName} ${demande.player.firstName}`}
+                                            role="Administrateur"
+                                            details={demande.note}
+                                            status={demande.accepted ? "Acceptée" : demande.refused ? "Refusée" : "En attente"}
+                                        />
+                                    ))
+                                ) : (
+                                    <ListItem>
+                                        <ListItemText primary="Aucune demande disponible" />
+                                    </ListItem>
+                                )}
                             </List>
                         </Card>
                     </Grid>
+
 
                     <Grid item xs={12} sm={6} lg={6}>
                         <GraphCard >
                             <PieChart
                                 series={[
                                     {
-                                        data: calorieData,
+                                        data: demandStatusData.length > 0 ? demandStatusData : [{ id: 0, value: 1, label: "Aucune donnée" }],
                                         highlightScope: { faded: 'global', highlighted: 'item' },
                                         faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
                                     },

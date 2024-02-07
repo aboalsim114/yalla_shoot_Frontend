@@ -63,6 +63,7 @@ export default function Register() {
                 password: formValues.motDePasse,
                 phone: formValues.phone,
                 profile_picture: profilePicture,
+
             };
 
             let url = 'http://localhost:8888/api/v1/auth/player/register';
@@ -168,7 +169,7 @@ export default function Register() {
                             validationSchema={RegisterSchema}
                             onSubmit={handleSubmit}
                         >
-                            {({ errors, touched, setFieldValue }) => (
+                            {({ errors, touched, setFieldValue, handleChange, values }) => (
                                 <Form className="form">
                                     <Field as={TextField}
                                         label="Prénom"
@@ -214,6 +215,9 @@ export default function Register() {
                                         helperText={touched.age ? errors.age : ""}
                                         error={touched.age && Boolean(errors.age)}
                                     />
+
+
+
                                     <Field as={TextField}
                                         label="Email"
                                         name="email"
