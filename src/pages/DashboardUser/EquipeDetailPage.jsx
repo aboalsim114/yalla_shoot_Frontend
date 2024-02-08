@@ -137,7 +137,7 @@ export default function EquipeDetailPage() {
                                 <Typography variant="body1" sx={{ mb: 2 }}>
                                     Vous êtes passionné de {gameInfo.category} et cherchez une équipe dynamique ? Rejoignez-nous !
                                 </Typography>
-                                <Button variant="contained" onClick={sendJoinRequest} disabled={gameInfo.requiredPlayers <= 0 || DemandeInprogess} color="primary">
+                                <Button variant="contained" onClick={sendJoinRequest} disabled={DemandeInprogess} color="primary">
                                     Devenir membre
                                 </Button>
                             </CardContent>

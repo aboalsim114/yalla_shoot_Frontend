@@ -15,68 +15,54 @@ import ProfileEditModal from "../../composants/DashboardOrganizer/ModalEditProfi
 import { useTheme } from '@mui/material/styles';
 export default function DashboardOrganizer() {
     const theme = useTheme();
-    const token = localStorage.getItem('token');
+    const { id } = useParams();
+    const navigate = useNavigate();
     const [requests, setRequests] = useState([]);
-    const [profileUserData, setProfileUserData] = useState([])
-    const { id } = useParams()
-    const navigate = useNavigate()
+    const [profileUserData, setProfileUserData] = useState({});
     const [gamesList, setGamesList] = useState([]);
     const [openModal, setOpenModal] = useState(false);
-    const [founderId, setFounderId] = useState('');
+    const token = localStorage.getItem('token');
     const handleOpenModal = () => setOpenModal(true);
 
     const handleCloseModal = () => setOpenModal(false);
 
 
+    useEffect(() => {
+        if (!token) {
+            navigate('/login');
+        } else {
+            fetchUserInfo();
+            fetchGamesAndRequests();
+        }
+    }, [navigate, id]);
 
 
     const fetchGamesAndRequests = async () => {
         try {
-            // Récupérer tous les jeux
-            const gamesResponse = await axios.get('http://localhost:8888/api/organizer/games', {
-                headers: { "Authorization": `Bearer ${token}` },
+            const gamesResponse = await axios.get(`http://localhost:8888/api/organizer/games`, {
+                headers: { Authorization: `Bearer ${token}` },
             });
-            if (gamesResponse.status === 200) {
-                setGamesList(gamesResponse.data);
-
-                // Pour chaque jeu, récupérer les demandes associées
-                for (let game of gamesResponse.data) {
-                    await fetchRequestsForGame(game.id);
-                    console.log("fetchTreq", fetchRequestsForGame(game.id));
+            setGamesList(gamesResponse.data || []);
+            console.log(gamesList);
+            await Promise.all(gamesResponse.data.map(async (game) => {
+                const requestsResponse = await axios.get(`http://localhost:8888/api/organizer/get/request/${game.id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (requestsResponse.status === 200) {
+                    setRequests(prevRequests => [...prevRequests, ...requestsResponse.data]);
                 }
-            }
+            }));
         } catch (error) {
-            console.error("Erreur lors de la récupération des jeux:", error);
-        }
-    };
-
-    const fetchRequestsForGame = async (gameId) => {
-        try {
-            const requestsResponse = await axios.get(`http://localhost:8888/api/organizer/get/request/${gameId}`, {
-                headers: { "Authorization": `Bearer ${token}` },
-            });
-            if (requestsResponse.status === 200 && Array.isArray(requestsResponse.data)) {
-                // Traiter ou stocker les demandes récupérées comme nécessaire
-                console.log(`Demandes pour le jeu ${gameId}:`, requestsResponse.data);
-            }
-        } catch (error) {
-            console.error(`Erreur lors de la récupération des demandes pour le jeu ${gameId}:`, error);
+            console.error('Erreur lors de la récupération des jeux et des demandes:', error);
         }
     };
 
 
 
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            navigate('/login');
-        } else {
 
-            fetchUserInfo();
-            fetchGamesAndRequests();
-        }
-    }, [navigate, id, token]);
+
+
 
 
     const fetchUserInfo = async () => {
@@ -84,7 +70,7 @@ export default function DashboardOrganizer() {
             const url = `http://localhost:8888/api/organizer/user/${id}`;
 
             const response = await axios.get(url, {
-                headers: { "Authorization": `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
             });
 
             if (response.status === 200) {
@@ -97,30 +83,17 @@ export default function DashboardOrganizer() {
         }
     };
 
-    const fetchListDemande = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8888/api/organizer/${id}/requests`, {
-                headers: { "Authorization": `Bearer ${token}` },
-            });
-            if (response.status === 200) {
-                setRequests(response.data);
-            }
-        } catch (error) {
-            console.error('Erreur lors de la récupération des demandes:', error);
-        }
-    };
+
 
 
 
 
     const handleAcceptRequest = async (requestId) => {
         try {
-            const response = await axios.patch(`http://localhost:8888/api/organizer/accept/request/${requestId}`, {}, {
-                headers: { "Authorization": `Bearer ${token}` },
+            await axios.patch(`http://localhost:8888/api/organizer/accept/request/${requestId}`, {}, {
+                headers: { Authorization: `Bearer ${token}` },
             });
-            if (response.status === 200) {
-                fetchListDemande();
-            }
+            fetchGamesAndRequests();
         } catch (error) {
             console.error("Erreur lors de l'acceptation de la demande:", error);
         }
@@ -128,12 +101,10 @@ export default function DashboardOrganizer() {
 
     const handleRejectRequest = async (requestId) => {
         try {
-            const response = await axios.patch(`http://localhost:8888/api/organizer/refuse/request/${requestId}`, {}, {
-                headers: { "Authorization": `Bearer ${token}` },
+            await axios.patch(`http://localhost:8888/api/organizer/refuse/request/${requestId}`, {}, {
+                headers: { Authorization: `Bearer ${token}` },
             });
-            if (response.status === 200) {
-                fetchListDemande();
-            }
+            fetchGamesAndRequests();
         } catch (error) {
             console.error("Erreur lors du refus de la demande:", error);
         }

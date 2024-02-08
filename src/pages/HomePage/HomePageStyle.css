@@ -1,5 +1,8 @@
 .homePage {
     position: relative;
+    background-image: url("../../assets/Fond_YallaShoot.png");
+    background-repeat: no-repeat;
+    background-size: cover;
 
 }
 

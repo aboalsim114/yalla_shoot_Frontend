@@ -3,7 +3,9 @@ import { TextField, Button, Typography, Container, Box, Select, MenuItem, FormCo
 import Navbar from "../../composants/Navbar/Navbar";
 import axios from 'axios';
 import * as Yup from 'yup';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Snackbar } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
 const CreateGameFormSchema = Yup.object().shape({
     category: Yup.string().required('La catégorie est requise'),
     date: Yup.date().required('La date est requise').nullable(),
@@ -20,13 +22,16 @@ const CreateGameFormSchema = Yup.object().shape({
 
 export default function CreateGame() {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+
     const [formData, setFormData] = useState({
         category: '',
         date: '',
         description: '',
         players_number: '',
         required_players: '',
-        city: '', // Ajouté en fonction de la structure de la base de données
+        city: '',
         latitude: '',
         longitude: '',
         postal_code: '',
@@ -39,29 +44,39 @@ export default function CreateGame() {
         setFormData({ ...formData, [name]: value });
     };
 
-
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenSnackbar(false);
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         setLoading(true);
         try {
-            const response = await axios.post(`http://localhost:8888/api/organizer/create/game/${id}`, {
-                ...formData,
-                founder_id: id,
-            }, {
-                headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+            const response = await axios.post(`http://localhost:8888/api/organizer/create/game/${id}`, formData, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
             });
 
-            if (response.status <= 200) {
-                alert("Jeu créé avec succès");
+            if (response.status === 200) {
+                setOpenSnackbar(true);
+                console.log(response.data);
+                setTimeout(() => {
+                    navigate(`/dashboardOrganizer/${id}`);
+                }, 3000)
             } else {
-                alert("Erreur lors de la création du jeu");
+                alert("Erreur lors de la création du jeu:")
             }
         } catch (error) {
-            alert("Erreur lors de la création du jeu");
+            const errorMessage = error.response && error.response.data && error.response.data.message
+                ? error.response.data.message
+                : 'Erreur inconnue lors de la création du jeu';
+            alert("Erreur lors de la création du jeu: " + errorMessage);
             console.error("Erreur lors de la création du jeu:", error);
-        } finally {
+        }
+        finally {
             setLoading(false);
         }
     };
@@ -83,7 +98,7 @@ export default function CreateGame() {
                         const { placeName, postalCode } = response.data.postalCodes[0];
                         setFormData(prevFormData => ({
                             ...prevFormData,
-                            ville: placeName,
+                            city: placeName,
                             postal_code: postalCode
                         }));
                     }
@@ -180,10 +195,10 @@ export default function CreateGame() {
                             id="city"
                             name="city"
                             label="city"
-                            value={formData.ville}
+                            value={formData.city}
                             onChange={handleChange}
-                            error={!!formErrors.ville}
-                            helperText={formErrors.ville}
+                            error={!!formErrors.city}
+                            helperText={formErrors.city}
                             margin="normal"
                         />
                         <TextField
@@ -209,6 +224,11 @@ export default function CreateGame() {
                     </form>
                 </Box>
             </Container>
+            <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                <MuiAlert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                    ton jeu  a été crée avec succès!
+                </MuiAlert>
+            </Snackbar>
         </>
     );
 }
